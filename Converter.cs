@@ -7,15 +7,13 @@ public static bool tryGetSteam64ID (string identifier, out string result)
 	if (match.Success)
 	{
 		// http://steamcommunity.com/id/{id} Format
-
 		XmlTextReader reader = new XmlTextReader (String.Format ("http://steamcommunity.com/id/{0}?xml=1", identifier.Split ('/') [4]));
 
 		while (reader.Read ())
 		{
 			if (reader.Name != "steamID64")
 				continue;
-
-			result = reader.Value;
+			result = reader.ReadInnerXml ();
 			break;
 		}
 		return true;
@@ -45,12 +43,12 @@ public static bool tryGetSteam64ID (string identifier, out string result)
 		return true;
 	}
 
-	rg = new Regex (@"(?:https|http)://steamcommunity.com/tradeoffer/new/?\?partner=\d+");
+	rg = new Regex (@"(?:https|http)://steamcommunity.com/tradeoffer/new/?\?partner=(\d+)");
 	match = rg.Match (identifier);
 	if (match.Success)
 	{
 		// https://steamcommunity.com/tradeoffer/new/?partner={id}&token={token}
-		var id = Convert.ToDecimal (match.Groups [0].Value) + Convert.ToDecimal ("76561197960265728");
+		var id = Convert.ToDecimal (match.Groups [1].Value) + Convert.ToDecimal ("76561197960265728");
 
 		result = id.ToString ();
 		return true;
